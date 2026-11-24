@@ -24,7 +24,7 @@
     </div>
     <div class="controls">
       <div>
-        <div class="slider-label"><span>Edge probability p <button class="small-button" id="new-sample">↻ New sample</button></span><b id="slider-value"></b></div>
+        <div class="slider-label"><span>Edge probability p <button class="small-button" id="new-sample">↻ New sample</button><button class="small-button quiet" id="toggle-dual">Dual lattice</button><button class="small-button quiet" id="estimate">Estimate</button></span><b id="slider-value"></b></div>
         <input type="range" id="slider" min="0" max="1" step="0.01" value="0.4">
         <div class="ticks"><span class="left" style="left:0%">0</span><span class="key" style="left:50%">1/2</span><span class="right" style="left:100%">1</span></div>
       </div>
@@ -40,8 +40,8 @@
 <div class="about" id="about">
   <div class="about-box">
     <button class="close">×</button>
-    <p>Bond percolation on a 30×30 square lattice: every edge is open with probability p, independently. The random numbers stay fixed while p changes, so the same random sample fills in as p increases. The cluster that joins the top row to the bottom row is shown in blue, and one shortest open path through it in orange. For bond percolation on the infinite square lattice the critical probability is p<sub>c</sub> = 1/2 (Harris 1960, Kesten 1980); on a finite lattice the chance of a top-to-bottom crossing near p = 1/2 is about 1/2.</p>
-    <p>方格网渗流：30×30 方格网上的每条边各自以概率 p 打开。拖动 p 时随机数不变，所以看到的是同一个随机样本随着 p 变大一点点长满。从最上面一行连到最下面一行的那一团通路显示为蓝色，其中一条最短的通路用橙色标出。无限大方格网上边渗流的临界概率是 p<sub>c</sub> = 1/2（Harris 1960，Kesten 1980）；有限大小的网格在 p = 1/2 附近连通的机会大约一半一半。</p>
+    <p>Bond percolation on a 30×30 square lattice: every edge is open with probability p, independently. The random numbers stay fixed while p changes, so the same random sample fills in as p increases. The cluster that joins the top row to the bottom row is shown in blue, and one shortest open path through it in orange. <b>Dual lattice</b> shows the dual graph: a vertex in the middle of every square, with a dual edge open exactly when the edge it crosses is closed. There is no top-to-bottom crossing exactly when a dual path joins the left side to the right side, and that blocking wall is highlighted. <b>Estimate</b> draws 1000 fresh samples at the current p and reports how many of them cross. For bond percolation on the infinite square lattice the critical probability is p<sub>c</sub> = 1/2 (Harris 1960, Kesten 1980); on a finite lattice the chance of a top-to-bottom crossing near p = 1/2 is about 1/2.</p>
+    <p>方格网渗流：30×30 方格网上的每条边各自以概率 p 打开。拖动 p 时随机数不变，所以看到的是同一个随机样本随着 p 变大一点点长满。从最上面一行连到最下面一行的那一团通路显示为蓝色，其中一条最短的通路用橙色标出。<b>Dual lattice</b> 显示对偶网格：在每个小方格中间放一个点，对偶边横穿原来的边，原来的边断开时对偶边才算通。从上到下连不通，当且仅当有一条对偶路径从左边连到右边，这道“墙”会被标出来。<b>Estimate</b> 在当前的 p 下重新抽 1000 个样本，统计其中有多少能从上连到下。无限大方格网上边渗流的临界概率是 p<sub>c</sub> = 1/2（Harris 1960，Kesten 1980）；有限大小的网格在 p = 1/2 附近连通的机会大约一半一半。</p>
   </div>
 </div>
 

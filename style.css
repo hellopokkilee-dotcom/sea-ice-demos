@@ -156,3 +156,8 @@ button:hover { border-color: #a9a79e; }
 @media (max-width: 600px) {
   .cards { grid-template-columns: 1fr; }
 }
+
+/* Extra, low-key buttons (e.g. Dual lattice, Estimate) */
+.quiet { border-color: transparent; color: var(--muted); margin-left: 2px; }
+.quiet:hover { border-color: #d6d4cb; color: var(--ink); }
+.quiet.active { color: var(--accent); border-color: #9cc3e4; background: #eef5fb; }

@@ -112,9 +112,67 @@ function findShortestPath(p) {
   return null;                   // no path
 }
 
+// ---------- Extra: the dual lattice ----------
+// Put a dual vertex in the middle of every square, plus one LEFT and one RIGHT
+// vertex outside the grid. Each dual edge crosses one original edge and is open
+// exactly when that edge is closed.
+// Fact: there is NO top-to-bottom crossing  <=>  a dual path joins LEFT to RIGHT.
+
+const SQUARES = (N - 1) * (N - 1);
+const LEFT = SQUARES, RIGHT = SQUARES + 1;
+
+// The square whose top-left corner is point (x, y)
+const square = (x, y) => x + y * (N - 1);
+
+function findDual(p) {
+  const parent = Array.from({ length: SQUARES + 2 }, (_, i) => i);
+  const find = (a) => {
+    while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; }
+    return a;
+  };
+  const dualEdges = [];
+
+  edges.forEach(([a, b], i) => {
+    if (isOpen(i, p)) return;                 // dual edge is open only if this edge is closed
+    const x = a % N, y = Math.floor(a / N);
+    let u, v;
+    if (b === a + 1) {
+      // horizontal edge: crossed by a vertical dual edge (square above ↔ square below)
+      if (y === 0 || y === N - 1) return;     // those would leave through the top/bottom
+      u = square(x, y - 1);
+      v = square(x, y);
+    } else {
+      // vertical edge: crossed by a horizontal dual edge (square left ↔ square right)
+      u = x === 0 ? LEFT : square(x - 1, y);
+      v = x === N - 1 ? RIGHT : square(x, y);
+    }
+    parent[find(u)] = find(v);
+    dualEdges.push([u, v, y]);
+  });
+
+  const blocked = find(LEFT) === find(RIGHT);
+  const wallGroup = blocked ? find(LEFT) : null;
+  return { dualEdges, find, wallGroup };
+}
+
+// ---------- Extra: estimate the crossing probability ----------
+// Draw many fresh samples at the current p (without changing the picture).
+
+function estimateCrossing(p, samples = 1000) {
+  const saved = U;
+  let crossed = 0;
+  for (let t = 0; t < samples; t++) {
+    U = edges.map(() => Math.random());
+    if (findCrossingGroups(findGroups(p)).size > 0) crossed++;
+  }
+  U = saved;
+  return crossed / samples;
+}
+
 // ---------- Drawing ----------
 
 const ctx = setupCanvas($('picture'), CANVAS_SIZE, CANVAS_SIZE);
+let showDual = false;
 const screenX = (point) => MARGIN + (point % N) * SPACING;
 const screenY = (point) => MARGIN + Math.floor(point / N) * SPACING;
 
@@ -157,6 +215,8 @@ function draw() {
   strokeEdges(openEdges.filter((e) => !inCrossing(e)), '#b4c0ca', 2.4);
   strokeEdges(openEdges.filter(inCrossing), '#9cc3e4', 3);
 
+  if (showDual) drawDual(p);
+
   // one shortest path in orange
   if (crosses) {
     const path = findShortestPath(p);
@@ -180,9 +240,48 @@ function draw() {
     : 'No open path from top to bottom.';
 }
 
+// Dual edges: faint dashed lines; the left-to-right wall (if any) in orange
+function drawDual(p) {
+  const { dualEdges, find, wallGroup } = findDual(p);
+  const dualPoint = (v, row) => {
+    if (v === LEFT) return [MARGIN - SPACING / 2, MARGIN + (row + 0.5) * SPACING];
+    if (v === RIGHT) return [MARGIN + (N - 0.5) * SPACING, MARGIN + (row + 0.5) * SPACING];
+    return [MARGIN + (v % (N - 1) + 0.5) * SPACING, MARGIN + (Math.floor(v / (N - 1)) + 0.5) * SPACING];
+  };
+  const strokeDual = (list, color, width, dashed) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.setLineDash(dashed ? [3, 3] : []);
+    ctx.beginPath();
+    for (const [u, v, row] of list) {
+      ctx.moveTo(...dualPoint(u, row));
+      ctx.lineTo(...dualPoint(v, row));
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  };
+  const inWall = ([u]) => wallGroup !== null && find(u) === wallGroup;
+  strokeDual(dualEdges.filter((e) => !inWall(e)), 'rgba(217,119,74,.35)', 1.2, true);
+  strokeDual(dualEdges.filter(inWall), COLORS.warm, 2.6, false);
+}
+
 // ---------- Controls ----------
 
-slider.oninput = draw;
+function clearEstimate() { $('estimate').textContent = 'Estimate'; }
+
+slider.oninput = () => { clearEstimate(); draw(); };
+
+$('toggle-dual').onclick = () => {
+  showDual = !showDual;
+  $('toggle-dual').classList.toggle('active', showDual);
+  draw();
+};
+
+$('estimate').onclick = () => {
+  const p = Number(slider.value);
+  const share = estimateCrossing(p);
+  $('estimate').textContent = `Estimate: ${Math.round(share * 100)}% of 1000 cross`;
+};
 $('new-sample').onclick = () => {
   drawNewSample();
   draw();
