@@ -14,6 +14,14 @@ Live page: https://hellopokkilee-dotcom.github.io/sea-ice-demos/
 | 5 | Ice–albedo feedback | Simple energy balance model with ice–albedo feedback and hysteresis |
 | 6 | Floe fragmentation | Random fragmentation of ice floes (a branching process, critical at p = 1/4) |
 
+## How the code is organized
+
+- `N_name.html` — the page for each demo (text, slider, canvas)
+- `N_name.js` — the model and the drawing for that demo, in four parts: settings, model, drawing, controls
+- `common.js` — small helpers used by every page
+- `style.css` — shared layout and colors
+- `index.html` / `index.js` — the home page and its preview pictures
+
 ## References
 
 - K. M. Golden et al., "Modeling Sea Ice," Notices of the AMS 67(10), 2020.
